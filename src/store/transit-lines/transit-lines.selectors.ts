@@ -49,7 +49,22 @@ export namespace fromTransitLines {
   )
 
   // Issue https://github.com/targomo/typescript-challenge-frontend/issues/1
-  export const stopsLinesGeoJson = createSelector(lines, (storeLines) => {
-    return null
+  export const stopsLinesGeoJson = createSelector(lines, (stateLines) => {
+    const lines = Object.values(stateLines) ?? []
+    const result = {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: lines.map((line) => ({
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: line.map((p) => [p.lng, p.lat]),
+          },
+          properties: {},
+        })),
+      },
+    } as GeoJSONSourceRaw
+    return result
   })
 }

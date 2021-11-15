@@ -11,6 +11,7 @@ import { fromTransitLines } from 'store/transit-lines/transit-lines.selectors'
 
 import { u9 } from 'constants/u9'
 import { MARKER_PAINT } from 'constants/marker-paint'
+import { LINE_PAINT } from 'constants/line-paint'
 
 import Home from './Home'
 import Detail from './Detail'
@@ -19,12 +20,17 @@ function App() {
   const STOPS_SOURCE_ID = 'stops-source'
   const STOPS_LAYER_ID = 'stops-layer'
 
+  const LINES_SOURCE_ID = 'lines-source'
+  const LINES_LAYER_ID = 'lines-layer'
+
   const mapContainer = useRef(null)
   const map = useRef(null)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const stopsSource = useSelector(fromTransitLines.stopsPointGeoJson)
+  const linesSource = useSelector(fromTransitLines.stopsLinesGeoJson)
+
   const selectedStopId = useSelector(fromTransitLines.selectedStopId)
 
   const [isMapLoaded, setIsMapLoadedValue] = useState<boolean>(false)
@@ -55,6 +61,9 @@ function App() {
     } else {
       map.current.addSource(STOPS_SOURCE_ID, stopsSource)
       map.current.addLayer({ type: 'circle', source: STOPS_SOURCE_ID, id: STOPS_LAYER_ID, paint: MARKER_PAINT })
+
+      map.current.addSource(LINES_SOURCE_ID, linesSource)
+      map.current.addLayer({ type: 'line', source: LINES_SOURCE_ID, id: LINES_LAYER_ID, paint: LINE_PAINT })
     }
   }, [stopsSource, isMapLoaded])
 
