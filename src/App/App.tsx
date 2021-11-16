@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import './App.scss'
 
-import { Map, MapMouseEvent, PointLike, GeoJSONSource } from 'mapbox-gl'
+import { Map, MapMouseEvent, PointLike, GeoJSONSource, GeoJSONSourceRaw } from 'mapbox-gl'
 import { useDispatch, useSelector } from 'react-redux'
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
@@ -9,7 +9,7 @@ import { Box } from '@mui/material'
 import { TransitLineActions } from 'store/transit-lines/transit-lines.actions'
 import { fromTransitLines } from 'store/transit-lines/transit-lines.selectors'
 
-import { MARKER_PAINT } from 'constants/marker-paint'
+import { MARKER_PAINT, SELECTED_MARKER_PAINT } from 'constants/marker-paint'
 import { LINE_PAINT } from 'constants/line-paint'
 
 import Home from './Home'
@@ -19,6 +19,9 @@ import { requestService } from 'services/request'
 function App() {
   const STOPS_SOURCE_ID = 'stops-source'
   const STOPS_LAYER_ID = 'stops-layer'
+
+  const SELECTED_STOP_SOURCE_ID = 'selected-stop-source'
+  const SELECTED_STOP_LAYER_ID = 'selected-stop-layer'
 
   const LINES_SOURCE_ID = 'lines-source'
   const LINES_LAYER_ID = 'lines-layer'
@@ -32,6 +35,7 @@ function App() {
 
   const stopsSource = useSelector(fromTransitLines.stopsPointGeoJson)
   const linesSource = useSelector(fromTransitLines.stopsLinesGeoJson)
+  const selectedStopSource = useSelector(fromTransitLines.selectedStopPointGeoJson)
 
   const selectedStopId = useSelector(fromTransitLines.selectedStopId)
 
@@ -96,6 +100,23 @@ function App() {
   useEffect(() => {
     navigate(selectedStopId ? '/detail' : '/home')
   }, [selectedStopId, navigate])
+
+  useEffect(() => {
+    const existingSource = map.current.getSource(SELECTED_STOP_SOURCE_ID)
+    if (existingSource) {
+      map.current.removeLayer(SELECTED_STOP_LAYER_ID)
+      map.current.removeSource(SELECTED_STOP_SOURCE_ID)
+    }
+    if (!selectedStopSource) return
+
+    map.current.addSource(SELECTED_STOP_SOURCE_ID, selectedStopSource)
+    map.current.addLayer({
+      type: 'circle',
+      source: SELECTED_STOP_SOURCE_ID,
+      id: SELECTED_STOP_LAYER_ID,
+      paint: SELECTED_MARKER_PAINT,
+    })
+  }, [selectedStopSource])
 
   return (
     <div>

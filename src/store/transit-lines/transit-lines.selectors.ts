@@ -48,6 +48,20 @@ export namespace fromTransitLines {
       } as GeoJSONSourceRaw)
   )
 
+  export const selectedStopPointGeoJson = createSelector([selectedStop], (selectedStop) => {
+    if (!selectedStop) return null
+    return {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [selectedStop.lng, selectedStop.lat],
+        },
+      },
+    } as GeoJSONSourceRaw
+  })
+
   // Issue https://github.com/targomo/typescript-challenge-frontend/issues/1
   export const stopsLinesGeoJson = createSelector(lines, (stateLines) => {
     const lines = Object.values(stateLines) ?? []

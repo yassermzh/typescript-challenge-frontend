@@ -8,3 +8,8 @@ export const MARKER_PAINT = {
   'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 5, 0.5, 15, 2],
   'circle-opacity': 1,
 } as CirclePaint
+
+export const SELECTED_MARKER_PAINT = {
+  ...MARKER_PAINT,
+  'circle-color': '#f00000',
+} as CirclePaint
