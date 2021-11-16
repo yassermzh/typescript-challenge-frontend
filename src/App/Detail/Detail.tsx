@@ -20,6 +20,10 @@ function Detail() {
     dispatch(TransitLineActions.DeleteStop('u9', selectedStop.stopId))
   }
 
+  const addStopAfter = () => {
+    dispatch(TransitLineActions.AddStopAfter('u9', selectedStop.stopId))
+  }
+
   return (
     <div className="detail">
       <div className="detail-header">
@@ -32,6 +36,9 @@ function Detail() {
       <span>Its very empty here (ಠ_ಠ)</span>
 
       {/*TODO add more info about the stop*/}
+      <Button variant="outlined" className="button" onClick={addStopAfter}>
+        Add new stop after
+      </Button>
       <Button variant="outlined" className="button" onClick={deleteStop} color="error">
         Delete Stop
       </Button>

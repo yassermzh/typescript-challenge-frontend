@@ -1,6 +1,8 @@
 import { TransitLine } from 'types/line'
 import { AnyAction, Dispatch } from 'redux'
 import { requestService } from 'services/request'
+import { RootState } from 'store'
+import { fromTransitLines } from './transit-lines.selectors'
 
 export enum TransitLinesActionTypes {
   ADD_LINE = '[TRANSIT LINE ACTIONS] Add line',
@@ -23,6 +25,19 @@ export namespace TransitLineActions {
       const endPoint = `/transit-lines/${lineId}`
       requestService.sendRequest('GET', endPoint).then((line) => {
         dispatch(AddLine(lineId, line))
+      })
+    }
+  }
+
+  export const AddStopAfter = (lineId: string, stopId: string) => {
+    return (dispatch: Dispatch, getState: () => RootState) => {
+      const endPoint = `/transit-lines/${lineId}/stops`
+      requestService.sendRequest('POST', endPoint, { currentStopId: stopId }).then((newLine) => {
+        dispatch(AddLine(lineId, newLine))
+        // auto select newly create stop
+        const state = getState()
+        const newStopId = fromTransitLines.selectedStop(state).nextStopId
+        dispatch(TransitLineActions.SelectStop(newStopId))
       })
     }
   }
