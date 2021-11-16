@@ -41,12 +41,8 @@ function App() {
 
   const [isMapLoaded, setIsMapLoadedValue] = useState<boolean>(false)
 
-  const fetchU9Line = async () => {
-    const lineId = 'u9'
-    const line = await requestService.sendRequest('GET', `/transit-lines/${lineId}`)
-    if (line) {
-      dispatch(TransitLineActions.AddLine(lineId, line))
-    }
+  const fetchU9Line = () => {
+      dispatch(TransitLineActions.FetchLine('u9'))
   }
 
   useEffect(() => {
@@ -85,9 +81,14 @@ function App() {
       return
     }
 
-    const existingSource = map.current.getSource(STOPS_SOURCE_ID) as GeoJSONSource
-    if (existingSource) {
-      existingSource.setData(stopsSource.data)
+    const existingStopsSource = map.current.getSource(STOPS_SOURCE_ID) as GeoJSONSource
+    const existingLinesSource = map.current.getSource(LINES_SOURCE_ID) as GeoJSONSource
+    if (existingStopsSource) {
+      existingStopsSource.setData(stopsSource.data)
+
+      if (existingLinesSource) {
+        existingLinesSource.setData(linesSource.data)
+      }
     } else {
       map.current.addSource(STOPS_SOURCE_ID, stopsSource)
       map.current.addLayer({ type: 'circle', source: STOPS_SOURCE_ID, id: STOPS_LAYER_ID, paint: MARKER_PAINT })
