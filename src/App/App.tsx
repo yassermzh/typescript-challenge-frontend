@@ -9,12 +9,12 @@ import { Box } from '@mui/material'
 import { TransitLineActions } from 'store/transit-lines/transit-lines.actions'
 import { fromTransitLines } from 'store/transit-lines/transit-lines.selectors'
 
-import { u9 } from 'constants/u9'
 import { MARKER_PAINT } from 'constants/marker-paint'
 import { LINE_PAINT } from 'constants/line-paint'
 
 import Home from './Home'
 import Detail from './Detail'
+import { requestService } from 'services/request'
 
 function App() {
   const STOPS_SOURCE_ID = 'stops-source'
@@ -37,9 +37,19 @@ function App() {
 
   const [isMapLoaded, setIsMapLoadedValue] = useState<boolean>(false)
 
-  useEffect(() => {
-    dispatch(TransitLineActions.AddLine('u9', u9))
+  const fetchU9Line = async () => {
+    const lineId = 'u9'
+    const line = await requestService.sendRequest('GET', `/transit-lines/${lineId}`)
+    if (line) {
+      dispatch(TransitLineActions.AddLine(lineId, line))
+    }
+  }
 
+  useEffect(() => {
+    fetchU9Line()
+  }, [])
+
+  useEffect(() => {
     map.current = new Map({
       container: mapContainer.current,
       style: 'https://maps.targomo.com/styles/positron-gl-style.json',
