@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import './App.scss'
 
-import { Map } from 'mapbox-gl'
+import { Map, MapMouseEvent, PointLike, GeoJSONSource } from 'mapbox-gl'
 import { useDispatch, useSelector } from 'react-redux'
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
@@ -23,8 +23,10 @@ function App() {
   const LINES_SOURCE_ID = 'lines-source'
   const LINES_LAYER_ID = 'lines-layer'
 
-  const mapContainer = useRef(null)
-  const map = useRef(null)
+  const CLICK_ON_MAP_QUERY_BOX = { width: 5, height: 5 }
+
+  const mapContainer = useRef<HTMLDivElement>(null)
+  const map = useRef<Map>(null)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -47,6 +49,20 @@ function App() {
 
     map.current.on('load', () => setIsMapLoadedValue(true))
 
+    map.current.on('click', (e: MapMouseEvent) => {
+      const { width, height } = CLICK_ON_MAP_QUERY_BOX
+      const clickedAt = e.point
+      const q: [PointLike, PointLike] = [
+        [clickedAt.x - width / 2, clickedAt.y - height / 2],
+        [clickedAt.x + width / 2, clickedAt.y + height / 2],
+      ]
+      const features = map.current.queryRenderedFeatures(q, { layers: [STOPS_LAYER_ID] })
+      if (features.length > 0) {
+        const feature = features[0]
+        dispatch(TransitLineActions.SelectStop(feature.properties._id))
+      }
+    })
+
     return () => setIsMapLoadedValue(false)
   }, [dispatch])
 
@@ -55,7 +71,7 @@ function App() {
       return
     }
 
-    const existingSource = map.current.getSource(STOPS_SOURCE_ID)
+    const existingSource = map.current.getSource(STOPS_SOURCE_ID) as GeoJSONSource
     if (existingSource) {
       existingSource.setData(stopsSource.data)
     } else {
